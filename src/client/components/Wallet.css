@@ -1,0 +1,82 @@
+.wallet {
+  background: linear-gradient(135deg, rgba(74, 43, 140, 0.8), rgba(138, 109, 59, 0.8));
+  border: 2px solid #d4af37;
+  padding: 1.5rem;
+}
+
+.wallet h2 {
+  color: #d4af37;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.wallet-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+}
+
+.wallet-address,
+.wallet-balance {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label {
+  color: #d4af37;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.value {
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.crypto-icon {
+  font-size: 1.2rem;
+}
+
+.wallet-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.wallet-actions .fantasy-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.button-icon {
+  font-size: 1.2rem;
+}
+
+/* Hover effects */
+.wallet-actions .fantasy-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Active state */
+.wallet-actions .fantasy-button:active {
+  transform: translateY(0);
+  box-shadow: none;
+} 

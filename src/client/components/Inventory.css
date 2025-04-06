@@ -1,0 +1,115 @@
+.inventory {
+  background: linear-gradient(135deg, rgba(74, 43, 140, 0.8), rgba(138, 109, 59, 0.8));
+  border: 2px solid #d4af37;
+  padding: 1.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.inventory h2 {
+  color: #d4af37;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.inventory-item {
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 2px solid;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.inventory-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.item-icon {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.item-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.item-type {
+  color: #d4af37;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.item-attributes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+
+.attribute {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #ffffff;
+}
+
+.item-value {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+  color: #d4af37;
+  font-weight: bold;
+}
+
+.value-icon {
+  font-size: 1.2rem;
+}
+
+/* Rarity-specific styles */
+.inventory-item[style*="border-color: #ffffff"] {
+  border-color: #ffffff;
+}
+
+.inventory-item[style*="border-color: #1eff00"] {
+  border-color: #1eff00;
+  box-shadow: 0 0 10px rgba(30, 255, 0, 0.3);
+}
+
+.inventory-item[style*="border-color: #0070dd"] {
+  border-color: #0070dd;
+  box-shadow: 0 0 10px rgba(0, 112, 221, 0.3);
+}
+
+.inventory-item[style*="border-color: #a335ee"] {
+  border-color: #a335ee;
+  box-shadow: 0 0 10px rgba(163, 53, 238, 0.3);
+}
+
+.inventory-item[style*="border-color: #ff8000"] {
+  border-color: #ff8000;
+  box-shadow: 0 0 10px rgba(255, 128, 0, 0.3);
+} 

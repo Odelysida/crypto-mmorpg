@@ -1,3 +1,4 @@
+/** @jsxImportSource react */
 import React, { useEffect, useRef, useState } from 'react';
 import { Socket } from 'socket.io-client';
 import './GameCanvas.css';
@@ -153,61 +154,60 @@ const generateDungeon = (width: number, height: number): number[][] => {
   return dungeon;
 };
 
-const GameCanvas: React.FC<GameCanvasProps> = ({ socket, player }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [dungeon] = useState(() => generateDungeon(50, 50));
-  const [camera, setCamera] = useState({ x: 0, y: 0 });
-  
-  // Initialize player position in a valid floor tile
-  const getInitialPlayerPosition = (): Position => {
-    // First try to find the center of the first room
-    if (dungeon && dungeon.length > 0) {
-      // Start from the center and spiral outward to find a floor tile
-      const centerY = Math.floor(dungeon.length / 2);
-      const centerX = Math.floor(dungeon[0].length / 2);
-      
-      const spiral = [
-        [0, 0], [0, 1], [1, 0], [0, -1], [-1, 0],  // immediate neighbors
-        [1, 1], [1, -1], [-1, -1], [-1, 1],        // diagonals
-        [0, 2], [2, 0], [0, -2], [-2, 0]           // extended neighbors
-      ];
+// Initialize player position in a valid floor tile
+const getInitialPlayerPosition = (dungeon: number[][]): Position => {
+  // First try to find the center of the first room
+  if (dungeon && dungeon.length > 0) {
+    // Start from the center and spiral outward to find a floor tile
+    const centerY = Math.floor(dungeon.length / 2);
+    const centerX = Math.floor(dungeon[0].length / 2);
+    
+    const spiral = [
+      [0, 0], [0, 1], [1, 0], [0, -1], [-1, 0],  // immediate neighbors
+      [1, 1], [1, -1], [-1, -1], [-1, 1],        // diagonals
+      [0, 2], [2, 0], [0, -2], [-2, 0]           // extended neighbors
+    ];
 
-      for (const [offsetY, offsetX] of spiral) {
-        const y = centerY + offsetY;
-        const x = centerX + offsetX;
-        
-        if (y >= 0 && y < dungeon.length && 
-            x >= 0 && x < dungeon[0].length && 
-            dungeon[y][x] === TileType.FLOOR) {
+    for (const [offsetY, offsetX] of spiral) {
+      const y = centerY + offsetY;
+      const x = centerX + offsetX;
+      
+      if (y >= 0 && y < dungeon.length && 
+          x >= 0 && x < dungeon[0].length && 
+          dungeon[y][x] === TileType.FLOOR) {
+        return {
+          x: (x + 0.5) * TILE_SIZE,
+          y: (y + 0.5) * TILE_SIZE
+        };
+      }
+    }
+
+    // If center area has no floor tiles, scan the whole dungeon
+    for (let y = 0; y < dungeon.length; y++) {
+      for (let x = 0; x < dungeon[0].length; x++) {
+        if (dungeon[y][x] === TileType.FLOOR) {
           return {
             x: (x + 0.5) * TILE_SIZE,
             y: (y + 0.5) * TILE_SIZE
           };
         }
       }
-
-      // If center area has no floor tiles, scan the whole dungeon
-      for (let y = 0; y < dungeon.length; y++) {
-        for (let x = 0; x < dungeon[0].length; x++) {
-          if (dungeon[y][x] === TileType.FLOOR) {
-            return {
-              x: (x + 0.5) * TILE_SIZE,
-              y: (y + 0.5) * TILE_SIZE
-            };
-          }
-        }
-      }
     }
+  }
 
-    // Fallback position (should never happen with our dungeon generation)
-    console.warn('No valid floor tile found for player spawn');
-    return { x: TILE_SIZE * 2, y: TILE_SIZE * 2 };
-  };
+  // Fallback position (should never happen with our dungeon generation)
+  console.warn('No valid floor tile found for player spawn');
+  return { x: TILE_SIZE * 2, y: TILE_SIZE * 2 };
+};
 
-  const playerPosRef = useRef<Position>(getInitialPlayerPosition());
+const GameCanvas: React.FC<GameCanvasProps> = ({ socket, player }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [dungeon] = useState(() => generateDungeon(50, 50));
+  const cameraRef = useRef({ x: 0, y: 0 });
+  const playerPosRef = useRef<Position>(getInitialPlayerPosition(dungeon));
   const animationFrameRef = useRef<number>(0);
   const movementRef = useRef<Movement>({ up: false, down: false, left: false, right: false });
-
+  
   // Handle player movement
   useEffect(() => {
     if (player && player.position) {
@@ -327,15 +327,16 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ socket, player }) => {
       updatePlayerPosition();
 
       // Update camera to follow player
-      const targetCameraX = Math.floor(playerPosRef.current.x / TILE_SIZE - VIEWPORT_WIDTH / 2);
-      const targetCameraY = Math.floor(playerPosRef.current.y / TILE_SIZE - VIEWPORT_HEIGHT / 2);
-      setCamera({ x: targetCameraX, y: targetCameraY });
+      cameraRef.current = {
+        x: Math.floor(playerPosRef.current.x / TILE_SIZE - VIEWPORT_WIDTH / 2),
+        y: Math.floor(playerPosRef.current.y / TILE_SIZE - VIEWPORT_HEIGHT / 2)
+      };
 
       // Draw visible portion of dungeon
       for (let y = 0; y < VIEWPORT_HEIGHT; y++) {
         for (let x = 0; x < VIEWPORT_WIDTH; x++) {
-          const worldX = x + camera.x;
-          const worldY = y + camera.y;
+          const worldX = x + cameraRef.current.x;
+          const worldY = y + cameraRef.current.y;
           
           if (worldX >= 0 && worldX < dungeon[0].length && 
               worldY >= 0 && worldY < dungeon.length) {
@@ -362,8 +363,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ socket, player }) => {
       }
 
       // Draw player
-      const screenX = (playerPosRef.current.x / TILE_SIZE - camera.x) * TILE_SIZE;
-      const screenY = (playerPosRef.current.y / TILE_SIZE - camera.y) * TILE_SIZE;
+      const screenX = (playerPosRef.current.x / TILE_SIZE - cameraRef.current.x) * TILE_SIZE;
+      const screenY = (playerPosRef.current.y / TILE_SIZE - cameraRef.current.y) * TILE_SIZE;
       
       // Draw player shadow
       ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
@@ -398,7 +399,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ socket, player }) => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [dungeon, camera, socket]);
+  }, [dungeon, socket]);
 
   return (
     <div className="game-canvas-container">

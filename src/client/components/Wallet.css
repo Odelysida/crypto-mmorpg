@@ -1,82 +1,64 @@
 .wallet {
-  background: linear-gradient(135deg, rgba(74, 43, 140, 0.8), rgba(138, 109, 59, 0.8));
-  border: 2px solid #d4af37;
-  padding: 1.5rem;
-}
-
-.wallet h2 {
-  color: #d4af37;
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  padding: 1rem;
+  color: #e0d5c1;
+  font-family: 'Cinzel', serif;
 }
 
 .wallet-info {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
   margin-bottom: 1.5rem;
-  padding: 1rem;
-  background-color: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
 }
 
-.wallet-address,
-.wallet-balance {
+.wallet-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
 }
 
 .label {
-  color: #d4af37;
+  color: #a99d8b;
   font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
 .value {
-  color: #ffffff;
-  font-size: 1.1rem;
+  color: #ffd700;
   font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.crypto-icon {
-  font-size: 1.2rem;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
 }
 
 .wallet-actions {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
 }
 
-.wallet-actions .fantasy-button {
-  flex: 1;
+.action-button {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  font-size: 0.9rem;
+  padding: 0.75rem;
+  background: linear-gradient(to bottom, #4a3f35, #2a231d);
+  border: 1px solid #6b5a4a;
+  border-radius: 4px;
+  color: #e0d5c1;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.button-icon {
+.action-button:hover {
+  background: linear-gradient(to bottom, #5a4f45, #3a332d);
+  border-color: #8b7a6a;
+}
+
+.action-button:active {
+  transform: translateY(1px);
+}
+
+.action-button i {
   font-size: 1.2rem;
-}
-
-/* Hover effects */
-.wallet-actions .fantasy-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-/* Active state */
-.wallet-actions .fantasy-button:active {
-  transform: translateY(0);
-  box-shadow: none;
+  margin-bottom: 0.3rem;
+  color: #ffd700;
 } 

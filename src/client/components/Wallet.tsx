@@ -1,54 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Player } from '../../shared/types';
+import DraggableWindow from './DraggableWindow';
 import './Wallet.css';
 
 interface WalletProps {
-  player: any;
+  player: Player | null;
 }
 
-const formatAddress = (address: string): string => {
-  if (!address) return '';
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-};
+export default function Wallet({ player }: WalletProps) {
+  const [isOpen, setIsOpen] = useState(true);
 
-const Wallet: React.FC<WalletProps> = ({ player }) => {
-  if (!player) {
-    return (
-      <div className="wallet">
-        <h3>Crypto Wallet</h3>
-        <p>Loading wallet...</p>
-      </div>
-    );
+  if (!player || !player.walletAddress || !player.balance) {
+    return null;
   }
 
-  return (
-    <div className="wallet">
-      <h3>Crypto Wallet</h3>
-      <div className="wallet-info">
-        <div className="wallet-address">
-          <label>Address:</label>
-          <span>{formatAddress(player.wallet.address)}</span>
-        </div>
-        <div className="wallet-balance">
-          <label>Balance:</label>
-          <span>{player.wallet.balance.toFixed(4)} ETH</span>
-        </div>
-      </div>
-      <div className="wallet-actions">
-        <button className="action-button">
-          <span className="icon">↑</span>
-          Send
-        </button>
-        <button className="action-button">
-          <span className="icon">↓</span>
-          Receive
-        </button>
-        <button className="action-button">
-          <span className="icon">≡</span>
-          History
-        </button>
-      </div>
-    </div>
-  );
-};
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
 
-export default Wallet; 
+  return (
+    <DraggableWindow 
+      title="Wallet" 
+      isOpen={isOpen} 
+      onClose={() => setIsOpen(false)}
+    >
+      <div className="wallet">
+        <div className="wallet-info">
+          <div className="wallet-row">
+            <span className="label">Address:</span>
+            <span className="value">{formatAddress(player.walletAddress)}</span>
+          </div>
+          <div className="wallet-row">
+            <span className="label">Balance:</span>
+            <span className="value">{player.balance.toFixed(4)} CRYPTO</span>
+          </div>
+        </div>
+        <div className="wallet-actions">
+          <button className="action-button">
+            <i className="fas fa-paper-plane"></i>
+            Send
+          </button>
+          <button className="action-button">
+            <i className="fas fa-qrcode"></i>
+            Receive
+          </button>
+          <button className="action-button">
+            <i className="fas fa-history"></i>
+            History
+          </button>
+        </div>
+      </div>
+    </DraggableWindow>
+  );
+} 

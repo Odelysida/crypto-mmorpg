@@ -1,15 +1,16 @@
 import express from 'express';
-import http from 'http';
+import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { GameServer } from './GameServer';
+import playerRoutes from './routes/playerRoutes';
 
 dotenv.config();
 
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
   cors: {
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
     methods: ['GET', 'POST']
@@ -18,16 +19,17 @@ const io = new Server(server, {
 
 app.use(cors());
 app.use(express.json());
+app.use('/api/players', playerRoutes);
 
 // Initialize game server
-const gameServer = new GameServer(io);
+new GameServer(io);
 
 // Basic health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 }); 

@@ -40,17 +40,31 @@ const App: React.FC = () => {
     
     switch (currentPage) {
       case 'inventory':
-        return <Inventory player={player} />;
+        return <div className="inventory-container">
+          <Inventory player={player} />
+        </div>;
       case 'wallet':
         return <Wallet player={player} />;
       case 'quests':
-        return <div className="page-container">Quests Page (Coming Soon)</div>;
+        return <div className="page-container">
+          <h2>Quests</h2>
+          <p>Available quests will appear here...</p>
+        </div>;
       case 'skills':
-        return <div className="page-container">Skills Page (Coming Soon)</div>;
+        return <div className="page-container">
+          <h2>Skills</h2>
+          <p>Your character skills and abilities...</p>
+        </div>;
       case 'connection':
-        return <div className="page-container">Connection Page (Coming Soon)</div>;
+        return <div className="page-container">
+          <h2>Wallet Connection</h2>
+          <p>Connect your crypto wallet...</p>
+        </div>;
       case 'settings':
-        return <div className="page-container">Settings Page (Coming Soon)</div>;
+        return <div className="page-container">
+          <h2>Settings</h2>
+          <p>Game settings and options...</p>
+        </div>;
       default:
         return null;
     }
@@ -59,13 +73,24 @@ const App: React.FC = () => {
   return (
     <div className="app">
       <div className="game-main">
-        <GameCanvas socket={socket} player={player} />
-        <div className="game-overlay">
+        <div className="game-sidebar-left">
           <PlayerStats player={player} />
-          <GameNav onNavigate={handleNavigate} currentPage={currentPage} />
-          {renderPage()}
+        </div>
+
+        <div className="game-canvas-container">
+          <GameCanvas socket={socket} player={player} />
+        </div>
+
+        <div className="game-sidebar-right">
           <Chat socket={socket} />
         </div>
+
+        <GameNav 
+          onNavigate={handleNavigate} 
+          currentPage={currentPage} 
+          player={player}
+        />
+        {renderPage()}
       </div>
     </div>
   );

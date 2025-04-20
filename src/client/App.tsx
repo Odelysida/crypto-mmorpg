@@ -6,7 +6,7 @@ import PlayerStats from './components/PlayerStats';
 import Inventory from './components/Inventory';
 import Wallet from './components/Wallet';
 import Chat from './components/Chat';
-import './styles/App.css';
+import './App.css';
 
 const App: React.FC = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -32,10 +32,12 @@ const App: React.FC = () => {
   }, []);
 
   const handleNavigate = (page: string) => {
-    setCurrentPage(page);
+    setCurrentPage(page === currentPage ? 'game' : page);
   };
 
   const renderPage = () => {
+    if (currentPage === 'game') return null;
+    
     switch (currentPage) {
       case 'inventory':
         return <Inventory player={player} />;
@@ -56,25 +58,15 @@ const App: React.FC = () => {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>Crypto Realms</h1>
-      </header>
-      
-      <main className="game-container">
-        <div className="game-left-panel">
+      <div className="game-main">
+        <GameCanvas socket={socket} player={player} />
+        <div className="game-overlay">
           <PlayerStats player={player} />
           <GameNav onNavigate={handleNavigate} currentPage={currentPage} />
-        </div>
-        
-        <div className="game-main">
-          <GameCanvas socket={socket} player={player} />
-        </div>
-        
-        <div className="game-right-panel">
           {renderPage()}
           <Chat socket={socket} />
         </div>
-      </main>
+      </div>
     </div>
   );
 };

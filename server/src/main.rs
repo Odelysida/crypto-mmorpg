@@ -2,6 +2,7 @@ mod game;
 mod types;
 mod error;
 mod handlers;
+mod ws;
 
 use actix_web::{web, App, HttpServer};
 use actix_cors::Cors;
@@ -14,6 +15,7 @@ use crate::handlers::{
     player_handlers,
     game_handlers,
 };
+use crate::ws::ws_index;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -36,6 +38,8 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(cors)
             .app_data(web::Data::new(game_state.clone()))
+            // WebSocket route
+            .route("/socket.io/", web::get().to(ws_index))
             // Player routes
             .service(web::scope("/api/player")
                 .route("/{id}", web::get().to(player_handlers::get_player))

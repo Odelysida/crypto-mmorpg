@@ -1,0 +1,71 @@
+.draggable-window {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(139, 115, 85, 0.8);
+  border-radius: 8px;
+  min-width: 250px;
+  max-width: 800px;
+  max-height: 90vh;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  user-select: none;
+}
+
+.window-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: rgba(44, 34, 27, 0.9);
+  border-bottom: 1px solid rgba(139, 115, 85, 0.6);
+  border-radius: 8px 8px 0 0;
+  cursor: move;
+}
+
+.window-header h2 {
+  margin: 0;
+  color: #d4c4a8;
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #d4c4a8;
+  font-size: 24px;
+  line-height: 1;
+  padding: 0 5px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-button:hover {
+  color: #ff6b6b;
+}
+
+.window-content {
+  padding: 15px;
+  overflow-y: auto;
+  max-height: calc(90vh - 50px);
+  color: #d4c4a8;
+}
+
+.window-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.window-content::-webkit-scrollbar-track {
+  background: rgba(44, 34, 27, 0.6);
+  border-radius: 3px;
+}
+
+.window-content::-webkit-scrollbar-thumb {
+  background: rgba(139, 115, 85, 0.6);
+  border-radius: 3px;
+}
+
+.window-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(196, 164, 132, 0.8);
+} 

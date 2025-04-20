@@ -1,30 +1,30 @@
 import React, { useState, useCallback } from 'react';
 import DraggableWindow from './DraggableWindow';
-import { Player, Item, EquipmentSlot } from '../../shared/types';
-import { inventoryService } from '../services/inventoryService';
+import { Player, Item, EquipmentSlot, Rarity, ItemType } from '../../shared/types';
+import { Socket } from 'socket.io-client';
 import './Inventory.css';
 
 interface InventoryProps {
   player: Player | null;
-  onInventoryUpdate?: () => void;
+  socket: Socket | null;
   isOpen?: boolean;
   onClose?: () => void;
 }
 
-const getRarityColor = (rarity: string): string => {
-  switch (rarity.toLowerCase()) {
-    case 'common': return '#9d9d9d';
-    case 'uncommon': return '#1eff00';
-    case 'rare': return '#0070dd';
-    case 'epic': return '#a335ee';
-    case 'legendary': return '#ff8000';
+const getRarityColor = (rarity: Rarity): string => {
+  switch (rarity) {
+    case Rarity.Common: return '#9d9d9d';
+    case Rarity.Uncommon: return '#1eff00';
+    case Rarity.Rare: return '#0070dd';
+    case Rarity.Epic: return '#a335ee';
+    case Rarity.Legendary: return '#ff8000';
     default: return '#ffffff';
   }
 };
 
 const Inventory: React.FC<InventoryProps> = ({
   player,
-  onInventoryUpdate,
+  socket,
   isOpen,
   onClose,
 }) => {
@@ -37,7 +37,7 @@ const Inventory: React.FC<InventoryProps> = ({
     setTimeout(() => setErrorMessage(null), 3000);
   }, []);
 
-  if (!player) {
+  if (!player || !socket) {
     return null;
   }
 
@@ -47,52 +47,40 @@ const Inventory: React.FC<InventoryProps> = ({
     setContextMenuPos({ x: e.clientX, y: e.clientY });
   };
 
-  const handleEquipItem = async (item: Item, slot: EquipmentSlot) => {
-    if (!player) return;
-    
-    const result = await inventoryService.equipItem(player.id, item.id, slot);
-    if (result.success) {
-      onInventoryUpdate?.();
-    } else {
-      handleError(result.message || 'Failed to equip item');
-    }
+  const handleEquipItem = (item: Item, slot: EquipmentSlot) => {
+    socket.emit('equipItem', { itemId: item.id, slot }, (response: { success: boolean, message?: string }) => {
+      if (!response.success) {
+        handleError(response.message || 'Failed to equip item');
+      }
+    });
     setSelectedItem(null);
     setContextMenuPos(null);
   };
 
-  const handleUnequipItem = async (slot: EquipmentSlot) => {
-    if (!player) return;
-    
-    const result = await inventoryService.unequipItem(player.id, slot);
-    if (result.success) {
-      onInventoryUpdate?.();
-    } else {
-      handleError(result.message || 'Failed to unequip item');
-    }
+  const handleUnequipItem = (slot: EquipmentSlot) => {
+    socket.emit('unequipItem', { slot }, (response: { success: boolean, message?: string }) => {
+      if (!response.success) {
+        handleError(response.message || 'Failed to unequip item');
+      }
+    });
   };
 
-  const handleUseItem = async (item: Item) => {
-    if (!player) return;
-    
-    const result = await inventoryService.useItem(player.id, item.id);
-    if (result.success) {
-      onInventoryUpdate?.();
-    } else {
-      handleError(result.message || 'Failed to use item');
-    }
+  const handleUseItem = (item: Item) => {
+    socket.emit('useItem', { itemId: item.id }, (response: { success: boolean, message?: string }) => {
+      if (!response.success) {
+        handleError(response.message || 'Failed to use item');
+      }
+    });
     setSelectedItem(null);
     setContextMenuPos(null);
   };
 
-  const handleDropItem = async (item: Item) => {
-    if (!player) return;
-    
-    const result = await inventoryService.dropItem(player.id, item.id);
-    if (result.success) {
-      onInventoryUpdate?.();
-    } else {
-      handleError(result.message || 'Failed to drop item');
-    }
+  const handleDropItem = (item: Item) => {
+    socket.emit('dropItem', { itemId: item.id }, (response: { success: boolean, message?: string }) => {
+      if (!response.success) {
+        handleError(response.message || 'Failed to drop item');
+      }
+    });
     setSelectedItem(null);
     setContextMenuPos(null);
   };
@@ -161,12 +149,12 @@ const Inventory: React.FC<InventoryProps> = ({
             className="context-menu"
             style={{ top: contextMenuPos.y, left: contextMenuPos.x }}
           >
-            {selectedItem.itemType === 'Consumable' && (
+            {selectedItem.itemType === ItemType.Consumable && (
               <button onClick={() => handleUseItem(selectedItem)}>Use</button>
             )}
-            {(selectedItem.itemType === 'Weapon' || selectedItem.itemType === 'Armor') && (
+            {(selectedItem.itemType === ItemType.Weapon || selectedItem.itemType === ItemType.Armor) && (
               <button onClick={() => handleEquipItem(selectedItem, 
-                selectedItem.itemType === 'Weapon' ? EquipmentSlot.MainHand : EquipmentSlot.Chest
+                selectedItem.itemType === ItemType.Weapon ? EquipmentSlot.MainHand : EquipmentSlot.Chest
               )}>Equip</button>
             )}
             <button onClick={() => handleDropItem(selectedItem)}>Drop</button>

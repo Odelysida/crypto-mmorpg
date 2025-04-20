@@ -1,4 +1,5 @@
 .game-canvas-container {
+  position: relative;
   width: 100%;
   height: 100%;
   display: flex;
@@ -7,16 +8,13 @@
   background: #111;
   border-radius: 8px;
   overflow: hidden;
-  position: relative;
-  min-height: 480px; /* Ensure minimum height */
 }
 
 .game-canvas {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   cursor: crosshair;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  background: #000;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
   border: 1px solid #333;
 }
 
@@ -51,8 +49,8 @@
   }
 }
 
-/* Add a retro CRT screen effect */
-.game-canvas-container::before {
+/* Add CRT screen effect */
+.game-canvas-container::after {
   content: '';
   position: absolute;
   top: 0;
@@ -60,10 +58,11 @@
   right: 0;
   bottom: 0;
   background: linear-gradient(
-    rgba(18, 16, 16, 0) 50%,
-    rgba(0, 0, 0, 0.25) 50%
+    rgba(0, 255, 0, 0.02) 50%,
+    rgba(0, 0, 0, 0.02) 50%
   );
   background-size: 100% 4px;
   pointer-events: none;
+  z-index: 2;
   opacity: 0.15;
 } 

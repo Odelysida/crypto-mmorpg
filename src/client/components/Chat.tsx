@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Socket } from 'socket.io-client';
 import './Chat.css';
 
 interface ChatMessage {
@@ -11,7 +10,7 @@ interface ChatMessage {
 }
 
 interface ChatProps {
-  socket: Socket | null;
+  socket: WebSocket | null;
 }
 
 const Chat: React.FC<ChatProps> = ({ socket }) => {
@@ -26,17 +25,35 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
   useEffect(() => {
     if (!socket) return;
 
-    socket.on('chat:message', (message: ChatMessage) => {
-      setMessages(prev => [...prev, message]);
-    });
+    const handleMessage = (event: MessageEvent) => {
+      try {
+        const message = JSON.parse(event.data);
+        if (message.type === 'ChatMessage') {
+          setMessages(prev => [...prev, {
+            id: crypto.randomUUID(),
+            sender: message.data.sender,
+            content: message.data.message,
+            timestamp: Date.now(),
+            type: 'user'
+          }]);
+        } else if (message.type === 'SystemMessage') {
+          setMessages(prev => [...prev, {
+            id: crypto.randomUUID(),
+            sender: 'System',
+            content: message.data.message,
+            timestamp: Date.now(),
+            type: 'system'
+          }]);
+        }
+      } catch (error) {
+        console.error('Error parsing chat message:', error);
+      }
+    };
 
-    socket.on('chat:system', (message: ChatMessage) => {
-      setMessages(prev => [...prev, { ...message, type: 'system' }]);
-    });
+    socket.addEventListener('message', handleMessage);
 
     return () => {
-      socket.off('chat:message');
-      socket.off('chat:system');
+      socket.removeEventListener('message', handleMessage);
     };
   }, [socket]);
 
@@ -52,13 +69,12 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
     e.preventDefault();
     if (!socket || !inputMessage.trim()) return;
 
-    const message: Omit<ChatMessage, 'id' | 'timestamp'> = {
-      sender: 'Player',
-      content: inputMessage.trim(),
-      type: 'user'
-    };
-
-    socket.emit('chat:message', message);
+    socket.send(JSON.stringify({
+      type: 'Chat',
+      data: {
+        message: inputMessage.trim()
+      }
+    }));
     setInputMessage('');
   };
 
@@ -67,25 +83,22 @@ const Chat: React.FC<ChatProps> = ({ socket }) => {
       <div className="chat-header">
         <h3>Chat</h3>
       </div>
-      
       <div className="chat-messages">
-        {messages.map((message) => (
-          <div key={message.id} className={`chat-message ${message.type}`}>
-            <span className="message-time">[{formatTimestamp(message.timestamp)}]</span>
-            <span className="message-sender">{message.sender}:</span>
-            <span className="message-text">{message.content}</span>
+        {messages.map((msg) => (
+          <div key={msg.id} className={`chat-message ${msg.type}`}>
+            <span className="message-time">{formatTimestamp(msg.timestamp)}</span>
+            <span className="message-sender">{msg.sender}:</span>
+            <span className="message-text">{msg.content}</span>
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
-
       <form className="chat-input" onSubmit={handleSubmit}>
         <input
           type="text"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           placeholder="Type a message..."
-          maxLength={200}
         />
         <button type="submit">Send</button>
       </form>

@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import React, { useEffect, useState, useRef } from 'react';
 import GameCanvas from './components/GameCanvas';
 import GameNav from './components/GameNav';
 import PlayerStats from './components/PlayerStats';
@@ -8,26 +7,61 @@ import Wallet from './components/Wallet';
 import Chat from './components/Chat';
 import './App.css';
 
+interface WebSocketMessage {
+  type: string;
+  data: any;
+}
+
 const App: React.FC = () => {
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [socket, setSocket] = useState<WebSocket | null>(null);
   const [player, setPlayer] = useState(null);
   const [currentPage, setCurrentPage] = useState('game');
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const newSocket = io('http://localhost:3000');
+    const ws = new WebSocket('ws://localhost:8080/ws');
+    wsRef.current = ws;
     
-    newSocket.on('connect', () => {
+    ws.onopen = () => {
       console.log('Connected to server');
-    });
+      setSocket(ws);
+    };
 
-    newSocket.on('gameState', (gameState) => {
-      setPlayer(gameState.player);
-    });
+    ws.onclose = () => {
+      console.log('Disconnected from server');
+      setSocket(null);
+    };
 
-    setSocket(newSocket);
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const message: WebSocketMessage = JSON.parse(event.data);
+        switch (message.type) {
+          case 'Welcome':
+            setPlayer(message.data.player);
+            break;
+          case 'PlayerMoved':
+            // Handle player movement
+            break;
+          case 'ChatMessage':
+            // Handle chat messages
+            break;
+          case 'Error':
+            console.error('Server error:', message.data.message);
+            break;
+        }
+      } catch (error) {
+        console.error('Error parsing message:', error);
+      }
+    };
 
     return () => {
-      newSocket.close();
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
     };
   }, []);
 
@@ -41,7 +75,7 @@ const App: React.FC = () => {
     switch (currentPage) {
       case 'inventory':
         return <div className="inventory-container">
-          <Inventory player={player} />
+          <Inventory player={player} socket={socket} />
         </div>;
       case 'wallet':
         return <Wallet player={player} />;
